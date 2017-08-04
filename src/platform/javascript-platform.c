@@ -215,7 +215,7 @@ static boolean modifier_held(int modifier) {
 	return 0;
 }
 
-struct brogueConsole cursesConsole = {
+struct brogueConsole javascriptConsole = {
 	gameLoop,
 	curses_pauseForMilliseconds,
 	curses_nextKeyOrMouseEvent,

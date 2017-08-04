@@ -19,6 +19,10 @@ extern struct brogueConsole tcodConsole;
 extern struct brogueConsole cursesConsole;
 #endif
 
+#ifdef __EMSCRIPTEN__
+extern struct brogueConsole javascriptConsole;
+#endif
+
 extern struct brogueConsole currentConsole;
 extern boolean serverMode;
 extern boolean noMenu;

@@ -39,7 +39,7 @@ static void append(char *str, char *ending, int bufsize) {
 }
 
 static void printCommandlineHelp() {
-	printf("%s", 
+	printf("%s",
 	"--help         -h          print this help message\n"
 	"--version      -V          print the version (i.e., " BROGUE_VERSION_STRING ")\n"
 	"--target                   print the makefile target (i.e., " BROGUE_TARGET_STRING ")\n"
@@ -73,6 +73,8 @@ int main(int argc, char *argv[])
 {
 #ifdef BROGUE_TCOD
 		currentConsole = tcodConsole;
+#elif __EMSCRIPTEN__
+		currentConsole = javascriptConsole;
 #else
 		currentConsole = cursesConsole;
 #endif
@@ -209,14 +211,14 @@ int main(int argc, char *argv[])
 			rogue.nextGame = NG_VIEW_RECORDING;
 			continue;
 		}
-		
+
 		badArgument(argv[i]);
 		return 1;
 	}
-	
+
 	loadKeymap();
 	currentConsole.gameLoop();
-	
+
 	return 0;
 }
 
