@@ -4,7 +4,7 @@
  *
  *  Created by Brian Walker on 4/13/10.
  *  Copyright 2010. All rights reserved.
- *  
+ *
  *  This file is part of Brogue.
  *
  *  Brogue is free software: you can redistribute it and/or modify
@@ -27,6 +27,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <dirent.h>
+#include <ctype.h>
 
 #include "platform.h"
 
@@ -52,7 +53,7 @@ void plotChar(uchar inputChar,
 }
 
 void pausingTimerStartsNow() {
-	
+
 }
 
 boolean shiftKeyIsDown() {
@@ -74,7 +75,7 @@ boolean pauseForMilliseconds(short milliseconds) {
 void initScores() {
 	short i;
 	FILE *scoresFile;
-	
+
 	scoresFile = fopen("BrogueHighScores.txt", "w");
 	for (i=0; i<HIGH_SCORES_COUNT; i++) {
 		fprintf(scoresFile, "%li\t%li\t%s", (long) 0, (long) 0, "(empty entry)\n");
@@ -89,13 +90,13 @@ short sortScoreBuffer() {
 	long highestUnsortedScore, mostRecentDate;
 	brogueScoreEntry sortedScoreBuffer[HIGH_SCORES_COUNT];
 	boolean lineSorted[HIGH_SCORES_COUNT];
-	
+
 	mostRecentDate = 0;
-	
+
 	for (i=0; i<HIGH_SCORES_COUNT; i++) {
 		lineSorted[i] = false;
 	}
-	
+
 	for (i=0; i<HIGH_SCORES_COUNT; i++) {
 		highestUnsortedLine = 0;
 		highestUnsortedScore = 0;
@@ -108,7 +109,7 @@ short sortScoreBuffer() {
 		sortedScoreBuffer[i] = scoreBuffer[highestUnsortedLine];
 		lineSorted[highestUnsortedLine] = true;
 	}
-	
+
 	// copy the sorted list back into scoreBuffer, remember the most recent entry
 	for (i=0; i<HIGH_SCORES_COUNT; i++) {
 		scoreBuffer[i] = sortedScoreBuffer[i];
@@ -127,23 +128,23 @@ short loadScoreBuffer() {
 	FILE *scoresFile;
 	time_t rawtime;
 	struct tm * timeinfo;
-	
+
 	scoresFile = fopen("BrogueHighScores.txt", "r");
-	
+
 	if (scoresFile == NULL) {
 		initScores();
 		scoresFile = fopen("BrogueHighScores.txt", "r");
 	}
-	
+
 	for (i=0; i<HIGH_SCORES_COUNT; i++) {
 		// load score and also the date in seconds
 		fscanf(scoresFile, "%li\t%li\t", &(scoreBuffer[i].score), &(scoreBuffer[i].dateNumber));
-		
+
 		// load description
 		fgets(scoreBuffer[i].description, COLS, scoresFile);
 		// strip the newline off the end
 		scoreBuffer[i].description[strlen(scoreBuffer[i].description) - 1] = '\0';
-		
+
 		// convert date to mm/dd/yy format
 		rawtime = (time_t) scoreBuffer[i].dateNumber;
 		timeinfo = localtime(&rawtime);
@@ -158,9 +159,9 @@ void loadKeymap() {
 	FILE *f;
 
 	char buffer[512];
-	
+
 	f = fopen("keymap", "r");
-	
+
 	if (f != NULL) {
 		while (fgets(buffer, 512, f) != NULL) {
 			// split it in two (destructively)
@@ -196,14 +197,14 @@ void loadKeymap() {
 void saveScoreBuffer() {
 	short i;
 	FILE *scoresFile;
-	
+
 	scoresFile = fopen("BrogueHighScores.txt", "w");
-	
+
 	for (i=0; i<HIGH_SCORES_COUNT; i++) {
 		// save the entry
 		fprintf(scoresFile, "%li\t%li\t%s\n", scoreBuffer[i].score, scoreBuffer[i].dateNumber, scoreBuffer[i].description);
 	}
-	
+
 	fclose(scoresFile);
 }
 
@@ -212,7 +213,7 @@ void dumpScores() {
 
 	rogueHighScoresEntry list[HIGH_SCORES_COUNT];
 	getHighScoresList(list);
-	
+
 	for (i = 0; i < HIGH_SCORES_COUNT; i++) {
 		if (list[i].score > 0) {
 			printf("%d\t%s\t%s\n", (int) list[i].score, list[i].date, list[i].description);
@@ -222,47 +223,47 @@ void dumpScores() {
 
 short getHighScoresList(rogueHighScoresEntry returnList[HIGH_SCORES_COUNT]) {
 	short i, mostRecentLineNumber;
-	
+
 	mostRecentLineNumber = loadScoreBuffer();
-	
+
 	for (i=0; i<HIGH_SCORES_COUNT; i++) {
 		returnList[i].score =				scoreBuffer[i].score;
 		strcpy(returnList[i].date,			scoreBuffer[i].dateText);
 		strcpy(returnList[i].description,	scoreBuffer[i].description);
 	}
-	
+
 	return mostRecentLineNumber;
 }
 
 boolean saveHighScore(rogueHighScoresEntry theEntry) {
 	short i, lowestScoreIndex = -1;
 	long lowestScore = -1;
-	
+
 	loadScoreBuffer();
-	
+
 	for (i=0; i<HIGH_SCORES_COUNT; i++) {
 		if (scoreBuffer[i].score < lowestScore || i == 0) {
 			lowestScore = scoreBuffer[i].score;
 			lowestScoreIndex = i;
 		}
 	}
-	
+
 	if (lowestScore > theEntry.score) {
 		return false;
 	}
-	
+
 	scoreBuffer[lowestScoreIndex].score	=				theEntry.score;
 	scoreBuffer[lowestScoreIndex].dateNumber =			(long) time(NULL);
 	strcpy(scoreBuffer[lowestScoreIndex].description,	theEntry.description);
-	
+
 	saveScoreBuffer();
-	
+
 	return true;
 }
 
 // not needed in libtcod
 void initializeBrogueSaveLocation() {
-	
+
 }
 
 // start of file listing
@@ -302,7 +303,7 @@ fileEntry *addfile(struct filelist *list, const char *name) {
 			return NULL;
 		}
 	}
-	
+
 	if (list->nfiles >= list->maxfiles) {
 		int newmax = list->maxfiles * 2;
 		fileEntry *newfiles = realloc(list->files, sizeof(fileEntry) * newmax);
@@ -314,7 +315,7 @@ fileEntry *addfile(struct filelist *list, const char *name) {
 			return NULL;
 		}
 	}
-	
+
 	// add the new file and copy the name into the buffer
 	list->files[list->nfiles].path = ((char *) NULL) + list->nextname; // don't look at them until they are transferred out
 	list->files[list->nfiles].date[0] = '\0'; // for now
@@ -322,7 +323,7 @@ fileEntry *addfile(struct filelist *list, const char *name) {
 
 	list->nextname += len + 1;
 	list->nfiles += 1;
-	
+
 	return list->files + (list->nfiles - 1);
 }
 
@@ -343,7 +344,7 @@ fileEntry *commitFilelist(struct filelist *list, char **namebuffer) {
 			files[i] = list->files[i];
 			files[i].path = names + (files[i].path - (char *) NULL);
 		}
-		
+
 		memcpy(names, list->names, list->nextname);
 	}
 	*/
@@ -358,7 +359,7 @@ fileEntry *commitFilelist(struct filelist *list, char **namebuffer) {
 fileEntry *listFiles(short *fileCount, char **namebuffer) {
 	struct filelist *list = newFilelist();
 
-	// windows: FindFirstFile/FindNextFile 
+	// windows: FindFirstFile/FindNextFile
 	DIR *dp= opendir ("./");
 
 	if (dp != NULL) {
@@ -384,9 +385,9 @@ fileEntry *listFiles(short *fileCount, char **namebuffer) {
 		*fileCount = 0;
 		return NULL;
 	}
-	
+
 	fileEntry *files = commitFilelist(list, namebuffer);
-	
+
 	if (files != NULL) {
 		*fileCount = (short) list->nfiles;
 	} else {
