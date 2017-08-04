@@ -83,7 +83,7 @@ javascript : clean bin/brogue
 .PHONY : clean both curses tcod tar javascript
 
 bin/brogue : ${DEPENDENCIES} ${BROGUEFILES}
-	$(CC) -O2 -march=i586 -o bin/brogue ${BROGUEFILES} ${LIBRARIES} -Wl,-rpath,.
+	$(CC) -O2 -march=i586 -o bin/brogue.js ${BROGUEFILES} ${LIBRARIES} -Wl,-rpath,.
 
 clean :
 	rm -f src/brogue/*.o src/platform/*.o bin/brogue
