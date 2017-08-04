@@ -17,7 +17,7 @@ all : both
 endif
 
 %.o : %.c Makefile src/brogue/Rogue.h src/brogue/IncludeGlobals.h
-	$(CC) $(CFLAGS) -g -o $@ -c $< 
+	$(CC) $(CFLAGS) -g -o $@ -c $<
 
 BROGUEFILES=src/brogue/Architect.o \
 	src/brogue/Combat.o \
@@ -78,12 +78,14 @@ curses : bin/brogue
 tcod : bin/brogue
 endif
 
-.PHONY : clean both curses tcod tar
+javascript : clean bin/brogue
+
+.PHONY : clean both curses tcod tar javascript
 
 bin/brogue : ${DEPENDENCIES} ${BROGUEFILES}
 	$(CC) -O2 -march=i586 -o bin/brogue ${BROGUEFILES} ${LIBRARIES} -Wl,-rpath,.
 
-clean : 
+clean :
 	rm -f src/brogue/*.o src/platform/*.o bin/brogue
 
 ${LIBTCODDIR} :
