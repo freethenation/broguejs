@@ -39,6 +39,7 @@ BROGUEFILES=src/brogue/Architect.o \
 	src/platform/platformdependent.o \
 	src/platform/curses-platform.o \
 	src/platform/tcod-platform.o \
+	src/platform/javascript-platform.o \
 	src/platform/term.o
 
 TCOD_DEF = -DBROGUE_TCOD -I$(LIBTCODDIR)/include
@@ -47,7 +48,6 @@ TCOD_LIB = -L. -L${LIBTCODDIR} ${SDL_FLAGS} -ltcod -Wl,-rpath,.
 
 CURSES_DEF = -DBROGUE_CURSES
 CURSES_LIB = -lncurses -lm
-
 
 tcod : DEPENDENCIES += ${TCOD_DEP}
 tcod : DEFINES += ${TCOD_DEF}
