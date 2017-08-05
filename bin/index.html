@@ -20,6 +20,15 @@
                 ctx.fillStyle = `rgb(${fr/100*255|0}, ${fg/100*255|0}, ${fb/100*255|0})`
                 ctx.fillText(String.fromCharCode(char), x, y); //brogue console is 100x34
             }
+            function onKeydown(e){
+                var key = ({
+                    38: 63232,
+                    37: 63234,
+                    40: 63233,
+                    39: 63235,
+                })[e.which || e.keyCode] || e.which || e.keyCode;
+                document.getElementById('game-frame').contentWindow.postMessage([0, key, 0, e.ctrlKey?1:0, e.shiftKey?1:0], "*")
+            }
             //brogue console is 100x34
             $(function(){
                 ctx = document.getElementById('game-canvas').getContext("2d");
@@ -31,11 +40,12 @@
                 ctx.font = '16px monospace';
                 ctx.fillStyle = 'white';
                 window.addEventListener('message', onMessage, false);
+                window.addEventListener('keydown', onKeydown, false);
             })
         </script>
     </head>
     <body>
         <canvas id="game-canvas" width="1000px" height="340px"></canvas>
-        <iframe src="brogue.html"></iframe>
+        <iframe id="game-frame" src="brogue.html"></iframe>
     </body>
 </html>
