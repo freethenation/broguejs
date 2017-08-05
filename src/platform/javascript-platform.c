@@ -1,4 +1,5 @@
 #ifdef __EMSCRIPTEN__
+#include <emscripten.h>
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
@@ -20,7 +21,9 @@ static void javascript_plotChar(uchar ch,
 			  short xLoc, short yLoc,
 			  short foreRed, short foreGreen, short foreBlue,
 			  short backRed, short backGreen, short backBlue) {
-    printf("%d, %d: %c\n", xLoc, yLoc, ch);
+    EM_ASM_({
+      window.parent.postMessage([$0, $1, $2], "*");
+    }, ch, xLoc, yLoc);
 }
 
 static boolean javascript_pauseForMilliseconds(short milliseconds) {
