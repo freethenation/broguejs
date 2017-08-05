@@ -37,7 +37,8 @@
                 cellWidth = ctxWidth/100;
                 cellHeight = ctxHeight/35;
                 ctx.fillRect(0, 0, ctxWidth, ctxHeight);
-                ctx.font = '16px monospace';
+                ctx.font = '10px monospace';
+                ctx.textBaseline = "top";
                 ctx.fillStyle = 'white';
                 window.addEventListener('message', onMessage, false);
                 window.addEventListener('keydown', onKeydown, false);
