@@ -27,7 +27,7 @@ static void javascript_plotChar(uchar ch,
 }
 
 static boolean javascript_pauseForMilliseconds(short milliseconds) {
-    usleep(milliseconds * 1000);
+    emscripten_sleep(milliseconds);
     return false;  // TODO: return true if we have key/mouse events
 }
 
