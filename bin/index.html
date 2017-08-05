@@ -1,0 +1,35 @@
+<html>
+    <head>
+        <style>
+            html, body {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+            }
+        </style>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.js"></script>
+        <script type="text/javascript">
+            var ctx, ctxWidth, ctxHeight;
+            function onMessage(e){
+                console.log(e.origin); // outputs "http://www.example.com/"
+                console.log(e.data.msg); // outputs "works!"
+                var [char, x, y] = e.data.msg;
+                ctx.fillText(String.fromCharCode(char), x/100*ctxWidth, y/35*ctxHeight); //brogue console is 100x34
+            }
+            //brogue console is 100x34
+            $(function(){
+                ctx = document.getElementById('game-canvas').getContext("2d");
+                ctxWidth = ctx.canvas.clientWidth;
+                ctxHeight = ctx.canvas.clientHeight;
+                ctx.fillRect(0, 0, ctxWidth, ctxHeight);
+                ctx.font = '16px serif';
+                ctx.fillStyle = 'white';
+                window.addEventListener('message', onMessage, false);
+
+            })
+        </script>
+    </head>
+    <body>
+        <canvas id="game-canvas" width="1000px" height="340px"></canvas>
+    </body>
+</html>
