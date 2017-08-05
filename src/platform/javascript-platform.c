@@ -22,8 +22,8 @@ static void javascript_plotChar(uchar ch,
 			  short foreRed, short foreGreen, short foreBlue,
 			  short backRed, short backGreen, short backBlue) {
     EM_ASM_({
-      window.parent.postMessage([$0, $1, $2], "*");
-    }, ch, xLoc, yLoc);
+      window.parent.postMessage([$0, $1, $2, $3, $4, $5, $6, $7, $8], "*");
+    }, ch, xLoc, yLoc, foreRed, foreGreen, foreBlue, backRed, backGreen, backBlue);
 }
 
 static boolean javascript_pauseForMilliseconds(short milliseconds) {
