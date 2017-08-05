@@ -9,20 +9,26 @@
         </style>
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.js"></script>
         <script type="text/javascript">
-            var ctx, ctxWidth, ctxHeight;
+            var ctx, ctxWidth, ctxHeight, cellWidth, cellHeight;
             function onMessage(e){
-                console.log(e.origin); // outputs "http://www.example.com/"
-                console.log(e.data.msg); // outputs "works!"
-                var [char, x, y] = e.data.msg;
-                ctx.fillText(String.fromCharCode(char), x/100*ctxWidth, y/35*ctxHeight); //brogue console is 100x34
+                //console.log(e.origin); // outputs "http://www.example.com/"
+                var [char, x, y, fr, fg, fb, br, bg, bb] = e.data;
+                x = x/100*ctxWidth
+                y = y/35*ctxHeight
+                ctx.fillStyle = `rgb(${br/100*255|0}, ${bg/100*255|0}, ${bb/100*255|0})`
+                ctx.fillRect(x,y,cellWidth,cellHeight)
+                ctx.fillStyle = `rgb(${fr/100*255|0}, ${fg/100*255|0}, ${fb/100*255|0})`
+                ctx.fillText(String.fromCharCode(char), x, y); //brogue console is 100x34
             }
             //brogue console is 100x34
             $(function(){
                 ctx = document.getElementById('game-canvas').getContext("2d");
                 ctxWidth = ctx.canvas.clientWidth;
                 ctxHeight = ctx.canvas.clientHeight;
+                cellWidth = ctxWidth/100;
+                cellHeight = ctxHeight/35;
                 ctx.fillRect(0, 0, ctxWidth, ctxHeight);
-                ctx.font = '16px serif';
+                ctx.font = '16px monospace';
                 ctx.fillStyle = 'white';
                 window.addEventListener('message', onMessage, false);
             })
