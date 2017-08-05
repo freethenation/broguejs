@@ -31,7 +31,14 @@ static void javascript_plotChar(uchar ch,
 			  short foreRed, short foreGreen, short foreBlue,
 			  short backRed, short backGreen, short backBlue) {
     EM_ASM_({
-      window.parent.postMessage([$0, $1, $2, $3, $4, $5, $6, $7, $8], '*');
+	  if(!window.plotChars){
+		  setTimeout(function(){
+			  window.parent.postMessage(Object.values(window.plotChars), '*');
+			  window.plotChars = null;
+		  },0);
+		  window.plotChars = {};
+	  }
+	  window.plotChars[($1<<8)+$2] = ([$0,$1,$2,$3,$4,$5,$6,$7,$8]);
     }, ch, xLoc, yLoc, foreRed, foreGreen, foreBlue, backRed, backGreen, backBlue);
 }
 

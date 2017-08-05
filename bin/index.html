@@ -10,15 +10,18 @@
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.js"></script>
         <script type="text/javascript">
             var ctx, ctxWidth, ctxHeight, cellWidth, cellHeight;
+            var origin = window.location.origin;
             function onMessage(e){
-                //console.log(e.origin); // outputs "http://www.example.com/"
-                var [char, x, y, fr, fg, fb, br, bg, bb] = e.data;
-                x = x/100*ctxWidth
-                y = y/35*ctxHeight
-                ctx.fillStyle = `rgb(${br/100*255|0}, ${bg/100*255|0}, ${bb/100*255|0})`
-                ctx.fillRect(x,y,cellWidth,cellHeight)
-                ctx.fillStyle = `rgb(${fr/100*255|0}, ${fg/100*255|0}, ${fb/100*255|0})`
-                ctx.fillText(String.fromCharCode(char), x, y); //brogue console is 100x34
+                if(origin!==e.origin) return;
+                e.data.forEach((plotChar)=>{
+                    var [char, x, y, fr, fg, fb, br, bg, bb] = plotChar;
+                    x = x/100*ctxWidth
+                    y = y/35*ctxHeight
+                    ctx.fillStyle = `rgb(${br/100*255|0}, ${bg/100*255|0}, ${bb/100*255|0})`
+                    ctx.fillRect(x,y,cellWidth,cellHeight)
+                    ctx.fillStyle = `rgb(${fr/100*255|0}, ${fg/100*255|0}, ${fb/100*255|0})`
+                    ctx.fillText(String.fromCharCode(char), x, y); //brogue console is 100x34
+                });
             }
             function onKeydown(e){
                 var key = ({
