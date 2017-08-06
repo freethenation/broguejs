@@ -5,23 +5,15 @@
                 width: 100%;
                 height: 100%;
                 margin: 0;
-            }
-            .wrapper {
-                width: 100%;
-                display: inline-block;
-                position: relative;
-            }
-            .wrapper:after {
-                padding-top: 36%; /* 100:36 ratio */
-                display: block;
-                content: '';
+                background: #070000;  /* fallback for old browsers */
+                background: -webkit-linear-gradient(to right, #070000, #4C0001, #070000);  /* Chrome 10-25, Safari 5.1-6 */
+                background: linear-gradient(to right, #070000, #4C0001, #070000); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
             }
             #game-canvas {
-                position: absolute;
-                top: 0;
-                bottom: 0;
-                right: 0;
-                left: 0;
+                object-fit: contain;
+            }
+            #game-frame{
+                display: none;
             }
         </style>
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.js"></script>
@@ -40,13 +32,27 @@
                     ctx.fillText(String.fromCharCode(char), x, y); //brogue console is 100x34
                 });
             }
+            var KEY_MAP = {
+                38: 63232,
+                37: 63234,
+                40: 63233,
+                39: 63235,
+                100: 52,//NUMPAD_4
+                102: 54, //NUMPAD_6
+                104: 56, //NUMPAD_8
+                98: 50,//NUMPAD_2
+                105: 57, //NUMPAD_9
+                103: 55, //NUMPAD_7
+                97: 49, //NUMPAD_1
+                99: 51, //NUMPAD_3
+                101:53, //NUMPAD_5
+                96:48, //NUMPAD_0
+                33:63276, //PAGE_UP_KEY
+                34:63277, //PAGE_DOWN_KEY
+            }
             function onKeydown(e){
-                var key = ({
-                    38: 63232,
-                    37: 63234,
-                    40: 63233,
-                    39: 63235,
-                })[e.which || e.keyCode] || e.which || e.keyCode;
+                var key = e.which || e.keyCode
+                var key = KEY_MAP[key] || key;
                 document.getElementById('game-frame').contentWindow.postMessage([0, key, 0, e.ctrlKey?1:0, e.shiftKey?1:0], "*")
             }
             //brogue console is 100x34
@@ -71,15 +77,14 @@
                 }
                 //set style on canvas and reg for events
                 canvas.style.width = "100%";
+                canvas.style.height = "100%";
                 window.addEventListener('message', onMessage, false);
                 window.addEventListener('keydown', onKeydown, false);
             })
         </script>
     </head>
     <body>
-        <div class="wrapper">
-            <canvas id="game-canvas" width="1000px" height="646px"></canvas>
-        </div>
+        <canvas id="game-canvas" width="1000px" height="646px"></canvas>
         <iframe id="game-frame" src="brogue.html"></iframe>
     </body>
 </html>
