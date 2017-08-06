@@ -6,6 +6,23 @@
                 height: 100%;
                 margin: 0;
             }
+            .wrapper {
+                width: 100%;
+                display: inline-block;
+                position: relative;
+            }
+            .wrapper:after {
+                padding-top: 36%; /* 100:36 ratio */
+                display: block;
+                content: '';
+            }
+            #game-canvas {
+                position: absolute;
+                top: 0;
+                bottom: 0;
+                right: 0;
+                left: 0;
+            }
         </style>
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.js"></script>
         <script type="text/javascript">
@@ -15,8 +32,8 @@
                 if(origin!==e.origin) return;
                 e.data.forEach((plotChar)=>{
                     var [char, x, y, fr, fg, fb, br, bg, bb] = plotChar;
-                    x = x/100*ctxWidth
-                    y = y/35*ctxHeight
+                    x = x*cellWidth
+                    y = y*cellHeight
                     ctx.fillStyle = `rgb(${br/100*255|0}, ${bg/100*255|0}, ${bb/100*255|0})`
                     ctx.fillRect(x,y,cellWidth,cellHeight)
                     ctx.fillStyle = `rgb(${fr/100*255|0}, ${fg/100*255|0}, ${fb/100*255|0})`
@@ -34,22 +51,35 @@
             }
             //brogue console is 100x34
             $(function(){
-                ctx = document.getElementById('game-canvas').getContext("2d");
+                var canvas = document.getElementById('game-canvas');
+                ctx = canvas.getContext("2d");
                 ctxWidth = ctx.canvas.clientWidth;
                 ctxHeight = ctx.canvas.clientHeight;
                 cellWidth = ctxWidth/100;
-                cellHeight = ctxHeight/35;
+                cellHeight = ctxHeight/34;
                 ctx.fillRect(0, 0, ctxWidth, ctxHeight);
-                ctx.font = '10px monospace';
                 ctx.textBaseline = "top";
                 ctx.fillStyle = 'white';
+                //find proper font size
+                ctx.font = '10px monospace';
+                for (i = 7; i < 20; i++) {
+                    ctx.font = i+'px monospace';
+                    if(ctx.measureText('A').width > cellWidth){
+                        ctx.font = (i-1)+'px monospace';
+                        break;
+                    }
+                }
+                //set style on canvas and reg for events
+                canvas.style.width = "100%";
                 window.addEventListener('message', onMessage, false);
                 window.addEventListener('keydown', onKeydown, false);
             })
         </script>
     </head>
     <body>
-        <canvas id="game-canvas" width="1000px" height="340px"></canvas>
+        <div class="wrapper">
+            <canvas id="game-canvas" width="1000px" height="646px"></canvas>
+        </div>
         <iframe id="game-frame" src="brogue.html"></iframe>
     </body>
 </html>
