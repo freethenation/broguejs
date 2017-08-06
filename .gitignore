@@ -50,3 +50,7 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+bin/brogue.html
+bin/brogue.html.mem
+brogue.js
