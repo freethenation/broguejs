@@ -5,9 +5,7 @@
                 width: 100%;
                 height: 100%;
                 margin: 0;
-                background: #070000;  /* fallback for old browsers */
-                background: -webkit-linear-gradient(to right, #070000, #4C0001, #070000);  /* Chrome 10-25, Safari 5.1-6 */
-                background: linear-gradient(to right, #070000, #4C0001, #070000); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+                background: #000000;  /* fallback for old browsers */
             }
             #game-canvas {
                 object-fit: contain;
@@ -20,6 +18,36 @@
         <script type="text/javascript">
             var ctx, ctxWidth, ctxHeight, cellWidth, cellHeight;
             var origin = window.location.origin;
+            var eventTypes = {
+                KEYSTROKE:0,
+                MOUSE_UP:1,
+                MOUSE_DOWN:2,
+                RIGHT_MOUSE_DOWN:3,
+                RIGHT_MOUSE_UP:4,
+                MOUSE_ENTERED_CELL:5
+            }
+            function throttle(fn, threshhold, scope) {
+                threshhold || (threshhold = 250);
+                var last,
+                    deferTimer;
+                return function () {
+                    var context = scope || this;
+
+                    var now = +new Date,
+                        args = arguments;
+                    if (last && now < last + threshhold) {
+                    // hold on to it
+                    clearTimeout(deferTimer);
+                    deferTimer = setTimeout(function () {
+                        last = now;
+                        fn.apply(context, args);
+                    }, threshhold);
+                    } else {
+                    last = now;
+                    fn.apply(context, args);
+                    }
+                };
+            }
             function onMessage(e){
                 if(origin!==e.origin) return;
                 e.data.forEach((plotChar)=>{
@@ -31,6 +59,43 @@
                     ctx.fillStyle = `rgb(${fr/100*255|0}, ${fg/100*255|0}, ${fb/100*255|0})`
                     ctx.fillText(String.fromCharCode(char), x, y); //brogue console is 100x34
                 });
+            }
+            function  getMousePos(canvas, evt) {
+                var rect = canvas.getBoundingClientRect(), // abs. size of element
+                    actualWidth = Math.min(rect.height*(canvas.width/canvas.height), rect.width)|0,
+                    actualHeight = Math.min(rect.width*(canvas.height/canvas.width), rect.height)|0,
+                    scale = canvas.width/actualWidth,
+                    offsetX = (rect.width-actualWidth)/2,
+                    offsetY = (rect.height-actualHeight)/2
+                ;
+                var x = (evt.clientX - rect.left) - offsetX;
+                if(x<0 || x>actualWidth) return null;
+                var y = (evt.clientY - rect.top) - offsetY;
+                if(y<0 || y>actualHeight) return null;
+                var pos = [x*scale, y*scale] //in pixels
+                pos = [(pos[0]/cellWidth)|0, (pos[1]/cellHeight)|0] //in cells
+                return pos
+            }
+            var lastMouseCell = [-1,-1];
+            function onMouseMove(e){
+                var pos = getMousePos(this, e);
+                if(lastMouseCell[0]===pos[0] && lastMouseCell[1]===pos[1]) return; //cell did not change...bail
+                lastMouseCell = pos;
+                document.getElementById('game-frame').contentWindow.postMessage([
+                    eventTypes.MOUSE_ENTERED_CELL, pos[0], pos[1], e.ctrlKey?1:0, e.shiftKey?1:0
+                ], "*")
+            }
+            function onMouseDown(e){
+                var pos = getMousePos(this, e);
+                document.getElementById('game-frame').contentWindow.postMessage([
+                    e.button===0?eventTypes.MOUSE_DOWN:eventTypes.RIGHT_MOUSE_DOWN, pos[0], pos[1], e.ctrlKey?1:0, e.shiftKey?1:0
+                ], "*")
+            }
+            function onMouseUp(e){
+                var pos = getMousePos(this, e);
+                document.getElementById('game-frame').contentWindow.postMessage([
+                    e.button===0?eventTypes.MOUSE_UP:eventTypes.RIGHT_MOUSE_UP, pos[0], pos[1], e.ctrlKey?1:0, e.shiftKey?1:0
+                ], "*")
             }
             var KEY_MAP = {
                 38: 63232,
@@ -53,7 +118,7 @@
             function onKeydown(e){
                 var key = e.which || e.keyCode
                 var key = KEY_MAP[key] || key;
-                document.getElementById('game-frame').contentWindow.postMessage([0, key, 0, e.ctrlKey?1:0, e.shiftKey?1:0], "*")
+                document.getElementById('game-frame').contentWindow.postMessage([eventTypes.KEYSTROKE, key, 0, e.ctrlKey?1:0, e.shiftKey?1:0], "*")
             }
             //brogue console is 100x34
             $(function(){
@@ -80,10 +145,13 @@
                 canvas.style.height = "100%";
                 window.addEventListener('message', onMessage, false);
                 window.addEventListener('keydown', onKeydown, false);
+                document.getElementById('game-canvas').addEventListener('mousedown', onMouseDown, false);
+                document.getElementById('game-canvas').addEventListener('mouseup', onMouseUp, false);
+                document.getElementById('game-canvas').addEventListener('mousemove', throttle(onMouseMove, 100), false);
             })
         </script>
     </head>
-    <body>
+    <body oncontextmenu="return false;">
         <canvas id="game-canvas" width="1000px" height="646px"></canvas>
         <iframe id="game-frame" src="brogue.html"></iframe>
     </body>
