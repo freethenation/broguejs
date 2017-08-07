@@ -62,16 +62,16 @@
             }
             function  getMousePos(canvas, evt) {
                 var rect = canvas.getBoundingClientRect(), // abs. size of element
-                    actualWidth = Math.min(rect.height*(canvas.width/canvas.height), rect.width)|0,
-                    actualHeight = Math.min(rect.width*(canvas.height/canvas.width), rect.height)|0,
+                    actualWidth = Math.min(rect.height*(canvas.width/canvas.height), rect.width)|0, //object-fit means the canvas ele will be scaled proportionally
+                    actualHeight = Math.min(rect.width*(canvas.height/canvas.width), rect.height)|0, //so calculate actual width and height
                     scale = canvas.width/actualWidth,
                     offsetX = (rect.width-actualWidth)/2,
                     offsetY = (rect.height-actualHeight)/2
                 ;
                 var x = (evt.clientX - rect.left) - offsetX;
-                if(x<0 || x>actualWidth) return null;
+                if(x<0 || x>actualWidth) return null; //ignore if object-fit causes us to be outside actual canvas
                 var y = (evt.clientY - rect.top) - offsetY;
-                if(y<0 || y>actualHeight) return null;
+                if(y<0 || y>actualHeight) return null; //ignore if object-fit causes us to be outside actual canvas
                 var pos = [x*scale, y*scale] //in pixels
                 pos = [(pos[0]/cellWidth)|0, (pos[1]/cellHeight)|0] //in cells
                 return pos
