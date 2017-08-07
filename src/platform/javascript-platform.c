@@ -14,6 +14,14 @@
 extern playerCharacter rogue;
 
 static void gameLoop() {
+	//setup file system
+	EM_ASM(FS.mkdir('/brogue'););
+	char *directory = "/brogue";
+	chdir(directory);
+	EM_ASM(
+		FS.mount(IDBFS,{},'/brogue');
+		FS.syncfs(true, function(err){console.log('syncDisk err:', err);});
+	);
 	//register a JS handler to queue mouse & keyboard input
 	EM_ASM(
 		var origin = window.location.origin;
@@ -63,6 +71,7 @@ static void EMSCRIPTEN_KEEPALIVE javascript_receiveNextKeyOrMouseEvent(enum even
 }
 static void javascript_nextKeyOrMouseEvent(rogueEvent *returnEvent, boolean textInput, boolean colorsDance) {
 	if (noMenu && rogue.nextGame == NG_NOTHING) rogue.nextGame = NG_NEW_GAME;
+	//get nextKeyOrMouseEvent
 	for (;;) {
 		if (colorsDance) {
 			shuffleTerrainColors(3, true);
