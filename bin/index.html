@@ -79,6 +79,7 @@
             var lastMouseCell = [-1,-1];
             function onMouseMove(e){
                 var pos = getMousePos(this, e);
+                if(!pos) return;
                 if(lastMouseCell[0]===pos[0] && lastMouseCell[1]===pos[1]) return; //cell did not change...bail
                 lastMouseCell = pos;
                 document.getElementById('game-frame').contentWindow.postMessage([
@@ -87,12 +88,14 @@
             }
             function onMouseDown(e){
                 var pos = getMousePos(this, e);
+                if(!pos) return;
                 document.getElementById('game-frame').contentWindow.postMessage([
                     e.button===0?eventTypes.MOUSE_DOWN:eventTypes.RIGHT_MOUSE_DOWN, pos[0], pos[1], e.ctrlKey?1:0, e.shiftKey?1:0
                 ], "*")
             }
             function onMouseUp(e){
                 var pos = getMousePos(this, e);
+                if(!pos) return;
                 document.getElementById('game-frame').contentWindow.postMessage([
                     e.button===0?eventTypes.MOUSE_UP:eventTypes.RIGHT_MOUSE_UP, pos[0], pos[1], e.ctrlKey?1:0, e.shiftKey?1:0
                 ], "*")
