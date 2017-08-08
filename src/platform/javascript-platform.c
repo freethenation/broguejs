@@ -13,6 +13,7 @@
 
 extern playerCharacter rogue;
 
+boolean useAscii;
 static void gameLoop() {
 	//register a JS handler to queue mouse & keyboard input
 	EM_ASM(
@@ -23,6 +24,10 @@ static void gameLoop() {
 			window.keyOrMouseEvents.push(e.data);
 		}, false);
 	);
+	//detect if we need to translate unicode to ascii... grr safari!
+	useAscii = EM_ASM_INT(
+		return /^((?!chrome|android).)*safari/i.test(navigator.userAgent)?1:0;
+	, 0);
 	rogueMain();
 }
 
@@ -30,6 +35,44 @@ static void javascript_plotChar(uchar ch,
 			  short xLoc, short yLoc,
 			  short foreRed, short foreGreen, short foreBlue,
 			  short backRed, short backGreen, short backBlue) {
+	if(useAscii){
+		switch (ch) {
+			case FLOOR_CHAR: ch = '.'; break;
+			case CHASM_CHAR: ch = ':'; break;
+			case TRAP_CHAR: ch = '%'; break;
+			case FIRE_CHAR: ch = '^'; break;
+			case FOLIAGE_CHAR: ch = '&'; break;
+			case AMULET_CHAR: ch = ','; break;
+			case SCROLL_CHAR: ch = '?'; break;
+			case RING_CHAR: ch = '='; break;
+			case WEAPON_CHAR: ch = '('; break;
+			case GEM_CHAR: ch = '+'; break;
+			case TOTEM_CHAR: ch = '0'; break;
+			case BAD_MAGIC_CHAR: ch = '+'; break;
+			case GOOD_MAGIC_CHAR: ch = '$'; break;
+
+			// case UP_ARROW_CHAR: ch = '^'; break; // same as WEAPON_CHAR
+			case DOWN_ARROW_CHAR: ch = 'v'; break;
+			case LEFT_ARROW_CHAR: ch = '<'; break;
+			case RIGHT_ARROW_CHAR: ch = '>'; break;
+
+			case UP_TRIANGLE_CHAR: ch = '^'; break;
+			case DOWN_TRIANGLE_CHAR: ch = 'v'; break;
+
+			case CHARM_CHAR: ch = '7'; break;
+
+			case OMEGA_CHAR: ch = '<'; break;
+			case THETA_CHAR: ch = '0'; break;
+			case LAMDA_CHAR: ch = '^'; break;
+			case KOPPA_CHAR: ch = '0'; break;
+
+			case LOZENGE_CHAR: ch = 'o'; break;
+			case CROSS_PRODUCT_CHAR: ch = 'x'; break;
+
+			case STATUE_CHAR: ch = '5'; break;
+			case UNICORN_CHAR: ch = 'U'; break;
+		}
+	}
     EM_ASM_({
 	  if(!window.plotChars){
 		  setTimeout(function(){
