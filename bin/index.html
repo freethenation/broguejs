@@ -119,25 +119,22 @@
                 ], "*")
             }
             var KEY_MAP = {
-                38: 63232,
-                37: 63234,
-                40: 63233,
-                39: 63235,
-                100: 52,//NUMPAD_4
-                102: 54, //NUMPAD_6
-                104: 56, //NUMPAD_8
-                98: 50,//NUMPAD_2
-                105: 57, //NUMPAD_9
-                103: 55, //NUMPAD_7
-                97: 49, //NUMPAD_1
-                99: 51, //NUMPAD_3
-                101:53, //NUMPAD_5
-                96:48, //NUMPAD_0
-                33:63276, //PAGE_UP_KEY
-                34:63277, //PAGE_DOWN_KEY
+                ArrowUp: 63232,
+                ArrowLeft: 63234,
+                ArrowDown: 63233,
+                ArrowRight: 63235,
+                PageUp:63276,
+                PageDown:63277,
+                Escape:27,
+                Return:13,
+                Enter:10,
+                Delete:127,
+                Tab:9,
             }
             function onKeydown(e){
-                var key = e.which || e.keyCode
+                var key;
+                if(e.key.length > 1) key = KEY_MAP[e.key];
+                else key = e.key.charCodeAt(0);
                 var key = KEY_MAP[key] || key;
                 document.getElementById('game-frame').contentWindow.postMessage([eventTypes.KEYSTROKE, key, 0, e.ctrlKey?1:0, e.shiftKey?1:0], "*")
             }
