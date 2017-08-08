@@ -6,12 +6,30 @@
                 height: 100%;
                 margin: 0;
                 background: #000000;  /* fallback for old browsers */
+                color: #e6e6e6;
+            }
+            body a {
+                color: #e6e6e6;
+            }
+            body a:hover {
+                font-weight: bold;
             }
             #game-canvas {
                 object-fit: contain;
+                flex-grow: 1;
+                flex-shrink: 1;
             }
             #game-frame{
                 display: none;
+            }
+            #project-info{
+                text-align: center;
+            }
+            .initalized{
+                display: flex;
+                flex-direction: column;
+                align-content: stretch;
+                align-items: stretch;
             }
         </style>
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.js"></script>
@@ -143,9 +161,9 @@
                         break;
                     }
                 }
-                //set style on canvas and reg for events
-                canvas.style.width = "100%";
-                canvas.style.height = "100%";
+                //canvas has strange interactions with CSS so we do alot of the styling after canvas is initalized
+                document.getElementsByTagName('body')['0'].className = "initalized"
+                //reg for events
                 window.addEventListener('message', onMessage, false);
                 window.addEventListener('keydown', onKeydown, false);
                 document.getElementById('game-canvas').addEventListener('mousedown', onMouseDown, false);
@@ -155,6 +173,12 @@
         </script>
     </head>
     <body oncontextmenu="return false;">
+        <div id="project-info">
+            <a href="https://sites.google.com/site/broguegame/" target="_blank" rel="noopener noreferrer">Brogue</a> in the browser!
+            It was compiled with <a href="https://github.com/kripken/emscripten" target="_blank" rel="noopener noreferrer">Emscripten</a>.
+            Report any issues on our <a href="https://github.com/thingless/broguejs" target="_blank" rel="noopener noreferrer">GitHub</a> page.
+            Unlike <a href="http://brogue.roguelikelike.com/" target="_blank" rel="noopener noreferrer">WebBrogue</a> no server connection is necessary!
+        </div>
         <canvas id="game-canvas" width="1000px" height="646px"></canvas>
         <iframe id="game-frame" src="brogue.html"></iframe>
     </body>
