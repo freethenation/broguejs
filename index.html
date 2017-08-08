@@ -1,0 +1,185 @@
+<html>
+    <head>
+        <style>
+            html, body {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                background: #000000;  /* fallback for old browsers */
+                color: #e6e6e6;
+            }
+            body a {
+                color: #e6e6e6;
+            }
+            body a:hover {
+                font-weight: bold;
+            }
+            #game-canvas {
+                object-fit: contain;
+                flex-grow: 1;
+                flex-shrink: 1;
+            }
+            #game-frame{
+                display: none;
+            }
+            #project-info{
+                text-align: center;
+            }
+            .initalized{
+                display: flex;
+                flex-direction: column;
+                align-content: stretch;
+                align-items: stretch;
+            }
+        </style>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.js"></script>
+        <script type="text/javascript">
+            var ctx, ctxWidth, ctxHeight, cellWidth, cellHeight;
+            var origin = window.location.origin;
+            var eventTypes = {
+                KEYSTROKE:0,
+                MOUSE_UP:1,
+                MOUSE_DOWN:2,
+                RIGHT_MOUSE_DOWN:3,
+                RIGHT_MOUSE_UP:4,
+                MOUSE_ENTERED_CELL:5
+            }
+            function throttle(fn, threshhold, scope) {
+                threshhold || (threshhold = 250);
+                var last,
+                    deferTimer;
+                return function () {
+                    var context = scope || this;
+
+                    var now = +new Date,
+                        args = arguments;
+                    if (last && now < last + threshhold) {
+                    // hold on to it
+                    clearTimeout(deferTimer);
+                    deferTimer = setTimeout(function () {
+                        last = now;
+                        fn.apply(context, args);
+                    }, threshhold);
+                    } else {
+                    last = now;
+                    fn.apply(context, args);
+                    }
+                };
+            }
+            function onMessage(e){
+                if(origin!==e.origin) return;
+                e.data.forEach((plotChar)=>{
+                    var [char, x, y, fr, fg, fb, br, bg, bb] = plotChar;
+                    x = x*cellWidth
+                    y = y*cellHeight
+                    ctx.fillStyle = `rgb(${br/100*255|0}, ${bg/100*255|0}, ${bb/100*255|0})`
+                    ctx.fillRect(x,y,cellWidth,cellHeight)
+                    ctx.fillStyle = `rgb(${fr/100*255|0}, ${fg/100*255|0}, ${fb/100*255|0})`
+                    ctx.fillText(String.fromCharCode(char), x, y); //brogue console is 100x34
+                });
+            }
+            function  getMousePos(canvas, evt) {
+                var rect = canvas.getBoundingClientRect(), // abs. size of element
+                    actualWidth = Math.min(rect.height*(canvas.width/canvas.height), rect.width)|0, //object-fit means the canvas ele will be scaled proportionally
+                    actualHeight = Math.min(rect.width*(canvas.height/canvas.width), rect.height)|0, //so calculate actual width and height
+                    scale = canvas.width/actualWidth,
+                    offsetX = (rect.width-actualWidth)/2,
+                    offsetY = (rect.height-actualHeight)/2
+                ;
+                var x = (evt.clientX - rect.left) - offsetX;
+                if(x<0 || x>actualWidth) return null; //ignore if object-fit causes us to be outside actual canvas
+                var y = (evt.clientY - rect.top) - offsetY;
+                if(y<0 || y>actualHeight) return null; //ignore if object-fit causes us to be outside actual canvas
+                var pos = [x*scale, y*scale] //in pixels
+                pos = [(pos[0]/cellWidth)|0, (pos[1]/cellHeight)|0] //in cells
+                return pos
+            }
+            var lastMouseCell = [-1,-1];
+            function onMouseMove(e){
+                var pos = getMousePos(this, e);
+                if(!pos) return;
+                if(lastMouseCell[0]===pos[0] && lastMouseCell[1]===pos[1]) return; //cell did not change...bail
+                lastMouseCell = pos;
+                document.getElementById('game-frame').contentWindow.postMessage([
+                    eventTypes.MOUSE_ENTERED_CELL, pos[0], pos[1], e.ctrlKey?1:0, e.shiftKey?1:0
+                ], "*")
+            }
+            function onMouseDown(e){
+                var pos = getMousePos(this, e);
+                if(!pos) return;
+                document.getElementById('game-frame').contentWindow.postMessage([
+                    e.button===0?eventTypes.MOUSE_DOWN:eventTypes.RIGHT_MOUSE_DOWN, pos[0], pos[1], e.ctrlKey?1:0, e.shiftKey?1:0
+                ], "*")
+            }
+            function onMouseUp(e){
+                var pos = getMousePos(this, e);
+                if(!pos) return;
+                document.getElementById('game-frame').contentWindow.postMessage([
+                    e.button===0?eventTypes.MOUSE_UP:eventTypes.RIGHT_MOUSE_UP, pos[0], pos[1], e.ctrlKey?1:0, e.shiftKey?1:0
+                ], "*")
+            }
+            var KEY_MAP = {
+                38: 63232,
+                37: 63234,
+                40: 63233,
+                39: 63235,
+                100: 52,//NUMPAD_4
+                102: 54, //NUMPAD_6
+                104: 56, //NUMPAD_8
+                98: 50,//NUMPAD_2
+                105: 57, //NUMPAD_9
+                103: 55, //NUMPAD_7
+                97: 49, //NUMPAD_1
+                99: 51, //NUMPAD_3
+                101:53, //NUMPAD_5
+                96:48, //NUMPAD_0
+                33:63276, //PAGE_UP_KEY
+                34:63277, //PAGE_DOWN_KEY
+            }
+            function onKeydown(e){
+                var key = e.which || e.keyCode
+                var key = KEY_MAP[key] || key;
+                document.getElementById('game-frame').contentWindow.postMessage([eventTypes.KEYSTROKE, key, 0, e.ctrlKey?1:0, e.shiftKey?1:0], "*")
+            }
+            //brogue console is 100x34
+            $(function(){
+                var canvas = document.getElementById('game-canvas');
+                ctx = canvas.getContext("2d");
+                ctxWidth = ctx.canvas.clientWidth;
+                ctxHeight = ctx.canvas.clientHeight;
+                cellWidth = ctxWidth/100;
+                cellHeight = ctxHeight/34;
+                ctx.fillRect(0, 0, ctxWidth, ctxHeight);
+                ctx.textBaseline = "top";
+                ctx.fillStyle = 'white';
+                //find proper font size
+                ctx.font = '10px monospace';
+                for (i = 7; i < 20; i++) {
+                    ctx.font = i+'px monospace';
+                    if(ctx.measureText('A').width > cellWidth){
+                        ctx.font = (i-1)+'px monospace';
+                        break;
+                    }
+                }
+                //canvas has strange interactions with CSS so we do alot of the styling after canvas is initalized
+                document.getElementsByTagName('body')['0'].className = "initalized"
+                //reg for events
+                window.addEventListener('message', onMessage, false);
+                window.addEventListener('keydown', onKeydown, false);
+                document.getElementById('game-canvas').addEventListener('mousedown', onMouseDown, false);
+                document.getElementById('game-canvas').addEventListener('mouseup', onMouseUp, false);
+                document.getElementById('game-canvas').addEventListener('mousemove', throttle(onMouseMove, 100), false);
+            })
+        </script>
+    </head>
+    <body oncontextmenu="return false;">
+        <div id="project-info">
+            <a href="https://sites.google.com/site/broguegame/" target="_blank" rel="noopener noreferrer">Brogue</a> in the browser!
+            It was compiled with <a href="https://github.com/kripken/emscripten" target="_blank" rel="noopener noreferrer">Emscripten</a>.
+            Report any issues on our <a href="https://github.com/thingless/broguejs" target="_blank" rel="noopener noreferrer">GitHub</a> page.
+            Unlike <a href="http://brogue.roguelikelike.com/" target="_blank" rel="noopener noreferrer">WebBrogue</a> no server connection is necessary!
+        </div>
+        <canvas id="game-canvas" width="1000px" height="646px"></canvas>
+        <iframe id="game-frame" src="brogue.html"></iframe>
+    </body>
+</html>
