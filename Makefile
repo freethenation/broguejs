@@ -58,8 +58,8 @@ curses : LIBRARIES = ${CURSES_LIB}
 
 js : CC = emcc
 js : DEFINES =
-js : LIBRARIES = '-s ASYNCIFY=1'
-js : JS_FILE_EXT = '.html'
+js : LIBRARIES = -s ASYNCIFY=1
+js : JS_FILE_EXT = .html
 js : clean bin/brogue
 
 both : DEPENDENCIES += ${TCOD_DEP}
