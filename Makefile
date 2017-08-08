@@ -56,6 +56,12 @@ tcod : LIBRARIES += ${TCOD_LIB}
 curses : DEFINES = ${CURSES_DEF}
 curses : LIBRARIES = ${CURSES_LIB}
 
+js : CC = emcc
+js : DEFINES =
+js : LIBRARIES = '-s ASYNCIFY=1'
+js : JS_FILE_EXT = '.html'
+js : clean bin/brogue
+
 both : DEPENDENCIES += ${TCOD_DEP}
 both : DEFINES += ${TCOD_DEF} ${CURSES_DEF}
 both : LIBRARIES += ${TCOD_LIB} ${CURSES_LIB}
@@ -78,15 +84,13 @@ curses : bin/brogue
 tcod : bin/brogue
 endif
 
-javascript : clean bin/brogue
-
-.PHONY : clean both curses tcod tar javascript
+.PHONY : clean both curses tcod tar js
 
 bin/brogue : ${DEPENDENCIES} ${BROGUEFILES}
-	$(CC) -O2 -march=i586 -o bin/brogue.html -s ASYNCIFY=1 ${BROGUEFILES} ${LIBRARIES} -Wl,-rpath,.
+	$(CC) -O2 -march=i586 -o bin/brogue${JS_FILE_EXT} ${BROGUEFILES} ${LIBRARIES} -Wl,-rpath,.
 
 clean :
-	rm -f src/brogue/*.o src/platform/*.o bin/brogue
+	rm -f src/brogue/*.o src/platform/*.o bin/brogue*
 
 ${LIBTCODDIR} :
 	src/get-libtcod.sh
@@ -111,4 +115,3 @@ tar : both
 	$(wildcard src/brogue/*.h) \
 	$(wildcard src/platform/*.c) \
 	$(wildcard src/platform/*.h)
-
