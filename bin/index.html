@@ -5,8 +5,9 @@
                 width: 100%;
                 height: 100%;
                 margin: 0;
-                background: #000000;  /* fallback for old browsers */
+                background: #000000;
                 color: #e6e6e6;
+                background-attachment: fixed;
             }
             body a {
                 color: #e6e6e6;
@@ -18,12 +19,21 @@
                 object-fit: contain;
                 flex-grow: 1;
                 flex-shrink: 1;
+                background: #000000; /* fullscreen */
             }
             #game-frame{
                 display: none;
             }
             #project-info{
                 text-align: center;
+            }
+            #project-info .close{
+                float: right;
+                padding-right: 15px;
+            }
+            #project-info #request-fullscreen{
+                float: left;
+                padding-left: 15px;
             }
             .initalized{
                 display: flex;
@@ -138,6 +148,10 @@
                 var key = KEY_MAP[key] || key;
                 document.getElementById('game-frame').contentWindow.postMessage([eventTypes.KEYSTROKE, key, 0, e.ctrlKey?1:0, e.shiftKey?1:0], "*")
             }
+            function onRequestFullscreen(){
+                var ele = document.getElementById('game-canvas');
+                if(ele) (ele.requestFullscreen || ele.webkitRequestFullscreen || ele.mozRequestFullScreen || ele.msRequestFullscreen).call(ele);
+            }
             //brogue console is 100x34
             $(function(){
                 var canvas = document.getElementById('game-canvas');
@@ -166,6 +180,7 @@
                 document.getElementById('game-canvas').addEventListener('mousedown', onMouseDown, false);
                 document.getElementById('game-canvas').addEventListener('mouseup', onMouseUp, false);
                 document.getElementById('game-canvas').addEventListener('mousemove', throttle(onMouseMove, 100), false);
+                document.getElementById('request-fullscreen').addEventListener('click', onRequestFullscreen, false);
             })
         </script>
     </head>
@@ -175,6 +190,8 @@
             It was compiled with <a href="https://github.com/kripken/emscripten" target="_blank" rel="noopener noreferrer">Emscripten</a>.
             Report any issues on our <a href="https://github.com/thingless/broguejs" target="_blank" rel="noopener noreferrer">GitHub</a> page.
             Unlike <a href="http://brogue.roguelikelike.com/" target="_blank" rel="noopener noreferrer">WebBrogue</a> no server connection is necessary!
+            <a href="#" id="request-fullscreen">Fullscreen</a>
+            <a href="#" class="close" onclick="this.parentElement.style.display='none';">X</a>
         </div>
         <canvas id="game-canvas" width="1000px" height="646px"></canvas>
         <iframe id="game-frame" src="brogue.html"></iframe>
